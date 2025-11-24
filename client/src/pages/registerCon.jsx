@@ -55,6 +55,13 @@ function ResgisterCon() {
           type="tel"
           description="## #####-####"
         />
+        <Input
+          label="Organização:"
+          id="org"
+          name="org"
+          type="text"
+          description="..."
+        />
         <button
           className="w-full mt-6 bg-linear-to-r from-yellow-300 to-pink-400 text-black font-bold py-3 
           rounded-full hover:opacity-50 transition text-2xl"
