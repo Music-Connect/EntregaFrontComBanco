@@ -11,6 +11,7 @@ function ResgisterCon() {
     usuario: "",
     telefone: "",
     local: "",
+    organizacao:"",
   });
   return (
     <Center>
