@@ -1,80 +1,98 @@
-import { Link } from "react-router";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router"; // Adicionei useNavigate para redirecionar depois
+import axios from "axios";
 import Center from "../components/layout/Center";
 import Input from "../components/layout/Input";
 import Title from "../components/layout/Title";
-import { useState } from "react";
+
 function Login() {
+  const navigate = useNavigate();
   const [formLogin, setFormLogin] = useState({
     email: "",
     password: "",
   });
-  const [errorMessage, setErrorMessage] = useState("");
 
-  const LoginSubmit = async (e) => {
+  const handleChange = (e) => {
+    setFormLogin({ ...formLogin, [e.target.name]: e.target.value });
+  };
+
+  const loginSubmit = async (e) => {
     e.preventDefault();
-    setErrorMessage("");
-
-    console.log(formLogin);
 
     try {
       const response = await axios.post(
-        "http://localhost:5000/user/login",
+        "http://localhost:3000/auth/login",
         formLogin
       );
+      localStorage.setItem("user", JSON.stringify(response.data.user));
+      localStorage.setItem("type", response.data.type);
+
+      alert("Bem-vindo(a)! " + response.data.message);
+      console.log("Dados do usuário:", response.data.user);
+      console.log("Tipo de perfil:", response.data.type);
+
+      navigate("/dashboard");
     } catch (error) {
       console.log(error);
-      setErrorMessage("Email ou senha inválidos. Tente novamente.");
+      alert(error.response?.data?.error || "Erro ao fazer login");
     }
   };
+
   return (
     <Center>
-      <Title title={"Music Connect"}></Title>
-      <p className="text-1xl text-zinc-300 pb-10">
-        Conecte-se com artista, produtores e oportunidades na indústria musical.
+      <Title title={"Music Connect"} />
+      <p className="text-1xl text-zinc-300 pb-10 text-center">
+        Conecte-se com artistas, produtores e oportunidades na indústria
+        musical.
       </p>
+
       <form
-        action=""
         className="w-full max-w-xl flex flex-col gap-5"
-        onSubmit={LoginSubmit}
+        onSubmit={loginSubmit}
       >
         <Input
-          type={"email"}
-          description={"example@gmail.com"}
+          label="Email:"
+          id="email"
+          name="email"
+          type="email"
+          description="example@gmail.com"
           value={formLogin.email}
-          onChange={(e) =>
-            setFormLogin({ ...formLogin, email: e.target.value })
-          }
-        ></Input>
+          onChange={handleChange}
+        />
         <Input
-          type={"password"}
-          description={"*******"}
+          label="Senha:"
+          id="password"
+          name="password"
+          type="password"
+          description="*******"
           value={formLogin.password}
-          onChange={(e) =>
-            setFormLogin({ ...formLogin, password: e.target.value })
-          }
-        ></Input>
+          onChange={handleChange}
+        />
+
         <button
+          type="submit"
           className="w-full mt-6 bg-linear-to-r from-yellow-300 to-pink-400 text-black font-bold py-3 
           rounded-full hover:opacity-50 transition text-2xl"
         >
           Entrar
         </button>
       </form>
-      {errorMessage && (
-        <div className="w-full max-w-xl text-center mt-4 p-4 bg-red-900/20 border border-red-500 rounded-lg">
-          <p className="text-red-400 text-sm mb-2">{errorMessage}</p>
-          <Link
-            to={"/forgot-password"} // Crie uma rota para esta página
-            className="text-amber-400 hover:underline"
-          >
-            Esqueceu sua senha?
-          </Link>
-        </div>
-      )}
+
+      <div className="w-full max-w-xl text-center mt-4">
+        <Link
+          to={"/forgot-password"}
+          className="text-amber-400 hover:underline"
+        >
+          Esqueceu sua senha?
+        </Link>
+      </div>
 
       <p className="text-1xl text-zinc-100 mt-2">
-        Não Tem uma conta?{" "}
-        <Link to={"/profileSelector"} className="text-amber-400">
+        Não tem uma conta?{" "}
+        <Link
+          to={"/profileSelector"}
+          className="text-amber-400 hover:underline"
+        >
           Registre-se
         </Link>
       </p>
