@@ -1,9 +1,12 @@
 import { Router } from "express";
-import dataReturn from "../middlewares/user";
+import dataReturnCon from "../handlers/userHandler";
+import dataReturnArt from "../handlers/userHandler";
 
 const router = Router();
 
-router.post("/register",dataReturn);
+router.post("/registerCon",dataReturnCon);
+
+router.post("/registerArt",dataReturnArt);
 
 router.post("/login");
 
