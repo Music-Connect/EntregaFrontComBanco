@@ -1,13 +1,16 @@
 import { Router } from "express";
-import dataReturnCon from "../handlers/userHandler";
-import dataReturnArt from "../handlers/userHandler";
 
+import dataReturnCon from "../handlers/userHandler.js";
+import { dataReturnArt } from "../handlers/userHandler.js";
+
+import { userLogin } from "../handlers/userHandler.js";
+
+import { validateRegister } from "../middlewares/user.js";
 const router = Router();
 
-router.post("/registerCon",dataReturnCon);
+router.post("/registerCon", validateRegister, dataReturnCon);
+router.post("/registerArt", validateRegister, dataReturnArt);
 
-router.post("/registerArt",dataReturnArt);
+router.post("/login", userLogin);
 
-router.post("/login");
-
-export default Router;
+export default router;
