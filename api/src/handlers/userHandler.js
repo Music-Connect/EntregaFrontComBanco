@@ -134,30 +134,35 @@ export function userLogin(req, res) {
 }
 export function updateUser(req, res) {
   const { id } = req.params;
-  const { usuario, telefone, local_atuacao, descricao, organizacao } = req.body;
+
+  const {
+    usuario,
+    telefone,
+    local_atuacao,
+    descricao,
+    organizacao,
+    cor_tema,
+    cor_banner,
+  } = req.body;
 
   const queryUser = `
         UPDATE usuario 
-        SET usuario = ?, telefone = ?, local_atuacao = ?, descricao = ?
+        SET usuario = ?, telefone = ?, local_atuacao = ?, descricao = ?, cor_tema = ?, cor_banner = ?
         WHERE id_usuario = ?
     `;
 
   pool.query(
     queryUser,
-    [usuario, telefone, local_atuacao, descricao, id],
+    [usuario, telefone, local_atuacao, descricao, cor_tema, cor_banner, id],
     (err, result) => {
       if (err) {
         console.error("Erro ao atualizar usuario:", err);
-        return res
-          .status(500)
-          .json({ error: "Erro ao atualizar dados básicos." });
+        return res.status(500).json({ error: "Erro ao atualizar dados." });
       }
 
       if (organizacao) {
         const queryCon = `UPDATE contratante SET organizacao = ? WHERE id_usuario = ?`;
-        pool.query(queryCon, [organizacao, id], (errCon) => {
-          if (errCon) console.error("Erro ao atualizar organização:", errCon);
-        });
+        pool.query(queryCon, [organizacao, id], () => {});
       }
 
       return res.status(200).json({
@@ -172,7 +177,6 @@ export function updateUser(req, res) {
 export function getUsers(req, res) {
   const { type, search } = req.query;
 
-  // CORREÇÃO AQUI: Mudamos 'id_usuario' para 'usuario.id_usuario' para evitar ambiguidade
   let query = `
         SELECT usuario.id_usuario, usuario, local_atuacao, imagem_perfil_url, descricao, tipo_usuario, organizacao 
         FROM usuario 
@@ -217,5 +221,101 @@ export function deleteUser(req, res) {
     }
 
     return res.status(200).json({ message: "Conta excluída com sucesso!" });
+  });
+}
+
+export function getUserById(req, res) {
+  const { id } = req.params;
+
+  const query = `
+        SELECT u.id_usuario, u.usuario, u.email, u.telefone, u.local_atuacao, 
+               u.descricao, u.tipo_usuario, u.cor_tema, u.cor_banner,
+               c.organizacao 
+        FROM usuario u
+        LEFT JOIN contratante c ON u.id_usuario = c.id_usuario 
+        WHERE u.id_usuario = ?
+    `;
+
+  pool.query(query, [id], (err, results) => {
+    if (err) return res.status(500).json({ error: err.message });
+    if (results.length === 0)
+      return res.status(404).json({ error: "Usuário não encontrado" });
+
+    return res.status(200).json(results[0]);
+  });
+}
+export function createContract(req, res) {
+  const {
+    id_contratante,
+    id_usuario,
+    local_evento,
+    data_evento,
+    valor_servico,
+    mensagem,
+  } = req.body;
+
+  const query = `
+        INSERT INTO contrato (id_contratante, id_usuario, local_evento, data_evento, valor_servico, mensagem)
+        VALUES (?, ?, ?, ?, ?, ?)
+    `;
+
+  pool.query(
+    query,
+    [
+      id_contratante,
+      id_usuario,
+      local_evento,
+      data_evento,
+      valor_servico,
+      mensagem,
+    ],
+    (err, result) => {
+      if (err) return res.status(500).json({ error: err.message });
+      return res.status(201).json({
+        message: "Proposta de contrato enviada!",
+        id: result.insertId,
+      });
+    }
+  );
+}
+
+export function getContracts(req, res) {
+  const { userId, type } = req.query;
+
+  let query = "";
+
+  if (type === "artista") {
+    query = `
+            SELECT c.*, u.usuario as nome_outro, u.imagem_perfil_url 
+            FROM contrato c
+            JOIN usuario u ON c.id_contratante = u.id_usuario
+            WHERE c.id_usuario = ?
+            ORDER BY c.id_contrato DESC
+        `;
+  } else {
+    query = `
+            SELECT c.*, u.usuario as nome_outro, u.imagem_perfil_url 
+            FROM contrato c
+            JOIN usuario u ON c.id_usuario = u.id_usuario
+            WHERE c.id_contratante = ?
+            ORDER BY c.id_contrato DESC
+        `;
+  }
+
+  pool.query(query, [userId], (err, results) => {
+    if (err) return res.status(500).json({ error: err.message });
+    return res.status(200).json(results);
+  });
+}
+
+export function updateContractStatus(req, res) {
+  const { id } = req.params;
+  const { status } = req.body;
+
+  const query = "UPDATE contrato SET status = ? WHERE id_contrato = ?";
+
+  pool.query(query, [status, id], (err, result) => {
+    if (err) return res.status(500).json({ error: err.message });
+    return res.status(200).json({ message: `Contrato ${status}!` });
   });
 }
