@@ -1,5 +1,11 @@
 import pool from "../config/mysql.js";
 
+function RegisterDataValidator({ email, password, confirmarSenha, usuario }) {
+  if (!email) throw new Error("O email é obrigatório.");
+  if (!usuario) throw new Error("O nome de usuário é obrigatório.");
+  if (password !== confirmarSenha) throw new Error("As senhas não conferem.");
+}
+
 export default function dataReturnCon(request, response) {
   try {
     const {
@@ -12,61 +18,73 @@ export default function dataReturnCon(request, response) {
       organizacao,
     } = request.body;
 
-    const query = `
-            INSERT INTO contratantes (email, senha, nome_usuario, telefone, localizacao, organizacao) 
-            VALUES (?, ?, ?, ?, ?, ?)
+    RegisterDataValidator({ email, password, confirmarSenha, usuario });
+
+    const queryUser = `
+            INSERT INTO usuario (email, senha, usuario, telefone, local_atuacao, tipo_usuario) 
+            VALUES (?, ?, ?, ?, ?, 'contratante')
         `;
-    const values = [email, password, usuario, telefone, local, organizacao];
 
-    pool.query(query, values, (error, results) => {
-      if (error) {
-        console.error("❌ Erro no MySQL:", error);
-        return response
-          .status(500)
-          .json({ error: "Erro ao salvar no banco." + error.message });
+    pool.query(
+      queryUser,
+      [email, password, usuario, telefone, local],
+      (err, resultUser) => {
+        if (err)
+          return response
+            .status(500)
+            .json({ error: "Erro ao criar usuário: " + err.message });
+
+        const newUserId = resultUser.insertId;
+
+        const queryCon = `INSERT INTO contratante (id_usuario, organizacao) VALUES (?, ?)`;
+
+        pool.query(queryCon, [newUserId, organizacao], (errCon, resultCon) => {
+          if (errCon) {
+            return response
+              .status(500)
+              .json({ error: "Erro ao criar dados de contratante." });
+          }
+
+          return response.status(201).json({
+            message: "Contratante cadastrado com sucesso!",
+            id: newUserId,
+          });
+        });
       }
-
-      return response.status(201).json({
-        message: "Contratante cadastrado com sucesso!",
-        id: results.insertId,
-      });
-    });
+    );
   } catch (error) {
-    console.error("❌ Erro de validação:", error.message);
     return response.status(400).json({ error: error.message });
   }
 }
 
 export function dataReturnArt(request, response) {
   try {
-    console.log("📩 Recebido pedido de registro de Artista:", request.body);
-
     const { email, password, confirmarSenha, usuario, telefone, local } =
       request.body;
 
     RegisterDataValidator({ email, password, confirmarSenha, usuario });
 
     const query = `
-            INSERT INTO artistas (email, senha, nome_usuario, telefone, localizacao) 
-            VALUES (?, ?, ?, ?, ?)
+            INSERT INTO usuario (email, senha, usuario, telefone, local_atuacao, tipo_usuario) 
+            VALUES (?, ?, ?, ?, ?, 'artista')
         `;
-    const values = [email, password, usuario, telefone, local];
 
-    pool.query(query, values, (error, results) => {
-      if (error) {
-        console.error("❌ Erro no MySQL:", error);
-        return response.status(500).json({ error: "Erro ao salvar no banco." });
+    pool.query(
+      query,
+      [email, password, usuario, telefone, local],
+      (err, results) => {
+        if (err)
+          return response
+            .status(500)
+            .json({ error: "Erro ao criar artista: " + err.message });
+
+        return response.status(201).json({
+          message: "Artista cadastrado com sucesso!",
+          id: results.insertId,
+        });
       }
-
-      console.log("✅ Artista salvo! ID:", results.insertId);
-
-      return response.status(201).json({
-        message: "Artista cadastrado com sucesso!",
-        id: results.insertId,
-      });
-    });
+    );
   } catch (error) {
-    console.error("❌ Erro de validação:", error.message);
     return response.status(400).json({ error: error.message });
   }
 }
@@ -78,33 +96,89 @@ export function userLogin(req, res) {
     return res.status(400).json({ error: "Email e senha são obrigatórios" });
   }
 
-  const queryArt = "SELECT * FROM artistas WHERE email = ? AND senha = ?";
+  const query = "SELECT * FROM usuario WHERE email = ? AND senha = ?";
 
-  pool.query(queryArt, [email, password], (err, resultsArt) => {
+  pool.query(query, [email, password], (err, results) => {
     if (err) return res.status(500).json({ error: err.message });
 
-    if (resultsArt.length > 0) {
+    if (results.length > 0) {
+      const user = results[0];
       return res.status(200).json({
         message: "Login realizado com sucesso!",
-        user: resultsArt[0],
-        type: "artista",
+        user: user,
+        type: user.tipo_usuario,
       });
     }
 
-    const queryCon = "SELECT * FROM contratantes WHERE email = ? AND senha = ?";
+    return res.status(401).json({ error: "Email ou senha incorretos." });
+  });
+}
 
-    pool.query(queryCon, [email, password], (err, resultsCon) => {
-      if (err) return res.status(500).json({ error: err.message });
+export function updateUser(req, res) {
+  const { id } = req.params;
+  const { usuario, telefone, local_atuacao, descricao, organizacao } = req.body;
 
-      if (resultsCon.length > 0) {
-        return res.status(200).json({
-          message: "Login realizado com sucesso!",
-          user: resultsCon[0],
-          type: "contratante",
+  const queryUser = `
+        UPDATE usuario 
+        SET usuario = ?, telefone = ?, local_atuacao = ?, descricao = ?
+        WHERE id_usuario = ?
+    `;
+
+  pool.query(
+    queryUser,
+    [usuario, telefone, local_atuacao, descricao, id],
+    (err, result) => {
+      if (err) {
+        console.error("Erro ao atualizar usuario:", err);
+        return res
+          .status(500)
+          .json({ error: "Erro ao atualizar dados básicos." });
+      }
+
+      if (organizacao) {
+        const queryCon = `UPDATE contratante SET organizacao = ? WHERE id_usuario = ?`;
+        pool.query(queryCon, [organizacao, id], (errCon) => {
+          if (errCon) console.error("Erro ao atualizar organização:", errCon);
         });
       }
 
-      return res.status(401).json({ error: "Email ou senha incorretos." });
-    });
+      return res.status(200).json({
+        message: "Perfil atualizado com sucesso!",
+
+        user: { ...req.body, id_usuario: id },
+      });
+    }
+  );
+}
+
+export function getUsers(req, res) {
+  const { type, search } = req.query;
+
+  // CORREÇÃO AQUI: Mudamos 'id_usuario' para 'usuario.id_usuario' para evitar ambiguidade
+  let query = `
+        SELECT usuario.id_usuario, usuario, local_atuacao, imagem_perfil_url, descricao, tipo_usuario, organizacao 
+        FROM usuario 
+        LEFT JOIN contratante ON usuario.id_usuario = contratante.id_usuario 
+        WHERE 1=1
+    `;
+
+  const params = [];
+
+  if (type) {
+    query += " AND tipo_usuario = ?";
+    params.push(type);
+  }
+
+  if (search) {
+    query += " AND (usuario LIKE ? OR descricao LIKE ?)";
+    params.push(`%${search}%`, `%${search}%`);
+  }
+
+  pool.query(query, params, (err, results) => {
+    if (err) {
+      console.error("Erro na busca:", err); // Agora você verá o erro no terminal se acontecer de novo
+      return res.status(500).json({ error: "Erro ao buscar usuários." });
+    }
+    return res.status(200).json(results);
   });
 }

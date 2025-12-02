@@ -6,11 +6,17 @@ import { dataReturnArt } from "../handlers/userHandler.js";
 import { userLogin } from "../handlers/userHandler.js";
 
 import { validateRegister } from "../middlewares/user.js";
+
+import { updateUser } from "../handlers/userHandler.js";
+
+import { getUsers } from "../handlers/userHandler.js";
 const router = Router();
 
 router.post("/registerCon", validateRegister, dataReturnCon);
 router.post("/registerArt", validateRegister, dataReturnArt);
-
 router.post("/login", userLogin);
 
+router.put("/users/:id", updateUser);
+
+router.get("/users", getUsers);
 export default router;
