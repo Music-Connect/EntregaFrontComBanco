@@ -120,7 +120,7 @@ function Settings() {
               </h2>
 
               <div className="flex items-center gap-6 mb-8">
-                <div className="w-20 h-20 rounded-full bg-gradient-to-tr from-yellow-300 to-pink-500 p-[2px]">
+                <div className="w-20 h-20 rounded-full bg-linear-to-tr from-yellow-300 to-pink-500 p[2px]">
                   <div className="w-full h-full rounded-full bg-zinc-900 flex items-center justify-center font-bold text-2xl">
                     {user.usuario.substring(0, 2).toUpperCase()}
                   </div>
@@ -185,7 +185,7 @@ function Settings() {
             <div className="fixed bottom-8 right-8">
               <button
                 onClick={handleUpdate}
-                className="bg-gradient-to-r from-yellow-300 to-pink-500 text-black px-8 py-3 rounded-full font-bold shadow-lg hover:scale-105 transition transform"
+                className="bg-linear-to-r from-yellow-300 to-pink-500 text-black px-8 py-3 rounded-full font-bold shadow-lg hover:scale-105 transition transform"
               >
                 Salvar Alterações
               </button>

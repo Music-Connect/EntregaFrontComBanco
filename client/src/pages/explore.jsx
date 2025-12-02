@@ -198,7 +198,10 @@ function Explore() {
                     <span className="text-green-400 font-bold">●</span>{" "}
                     Disponível
                   </div>
-                  <button className="text-xs font-bold text-white bg-white/10 hover:bg-white hover:text-black px-4 py-2 rounded-lg transition">
+                  <button
+                    className="..."
+                    onClick={() => navigate(`/u/${user.id_usuario}`)}
+                  >
                     Ver Perfil
                   </button>
                 </div>

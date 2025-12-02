@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import axios from "axios";
 
+// --- DADOS MOCKADOS (Simulação de Publicações) ---
 const mockPosts = [
   {
     id: 1,
@@ -53,6 +54,10 @@ const mockPosts = [
   },
 ];
 
+// CORES PADRÃO DO SISTEMA
+const DEFAULT_THEME = "#ec4899"; // Rosa
+const DEFAULT_BANNER = "#18181b"; // Zinc-900
+
 function Profile() {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
@@ -65,6 +70,8 @@ function Profile() {
     local_atuacao: "",
     descricao: "",
     organizacao: "",
+    cor_tema: DEFAULT_THEME,
+    cor_banner: DEFAULT_BANNER,
   });
 
   useEffect(() => {
@@ -82,12 +89,27 @@ function Profile() {
       local_atuacao: parsedUser.local_atuacao || "",
       descricao: parsedUser.descricao || "",
       organizacao: parsedUser.organizacao || "",
+      cor_tema: parsedUser.cor_tema || DEFAULT_THEME,
+      cor_banner: parsedUser.cor_banner || DEFAULT_BANNER,
     });
   }, [navigate]);
 
   if (!user) return null;
 
   const isArtist = localStorage.getItem("type") === "artista";
+
+  // Cores dinâmicas para exibição
+  const themeColor = user.cor_tema || DEFAULT_THEME;
+  const bannerColor = user.cor_banner || DEFAULT_BANNER;
+
+  // FUNÇÃO PARA RESTAURAR CORES
+  const handleRestoreColors = () => {
+    setEditForm((prev) => ({
+      ...prev,
+      cor_tema: DEFAULT_THEME,
+      cor_banner: DEFAULT_BANNER,
+    }));
+  };
 
   const handleSave = async (e) => {
     e.preventDefault();
@@ -113,7 +135,7 @@ function Profile() {
 
   return (
     <div className="min-h-screen bg-black text-white font-sans overflow-x-hidden relative">
-      {/*  BOTÃO VOLTAR  */}
+      {/*  BOTÃO VOLTAR  */}
       <button
         onClick={() => navigate("/dashboard")}
         className="fixed top-6 left-6 z-40 bg-black/50 backdrop-blur-md border border-white/10 w-10 h-10 rounded-full flex items-center justify-center hover:bg-white hover:text-black transition-all"
@@ -122,7 +144,13 @@ function Profile() {
       </button>
 
       <div className="relative">
-        <div className="h-80 w-full bg-linear-to-r from-zinc-900 via-purple-900/40 to-black relative overflow-hidden">
+        {/* Banner com Cor Dinâmica */}
+        <div
+          className="h-80 w-full relative overflow-hidden transition-colors duration-500"
+          style={{
+            background: `linear-gradient(to right, #000000, ${bannerColor})`,
+          }}
+        >
           <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
           <div className="absolute bottom-0 left-0 w-full h-32 bg-linear-to-t from-black to-transparent"></div>
         </div>
@@ -130,8 +158,11 @@ function Profile() {
         <div className="max-w-6xl mx-auto px-6 md:px-10 relative -mt-20 flex flex-col md:flex-row items-end gap-8 pb-8 border-b border-zinc-800">
           {/* Foto de Perfil */}
           <div
-            className="w-40 h-40 rounded-full p-1 bg-linear-to-tr from-yellow-300 to-pink-500 shadow-2xl relative z-10 group cursor-pointer"
+            className="w-40 h-40 rounded-full p-1 shadow-2xl relative z-10 group cursor-pointer"
             onClick={() => setIsEditing(true)}
+            style={{
+              background: `linear-gradient(to top right, #333, ${themeColor})`,
+            }}
           >
             <div className="w-full h-full rounded-full bg-zinc-900 flex items-center justify-center text-4xl font-bold text-white border-4 border-black overflow-hidden relative">
               {user.usuario.substring(0, 2).toUpperCase()}
@@ -158,16 +189,30 @@ function Profile() {
               <div className="flex gap-3">
                 <button
                   onClick={() => setIsEditing(true)}
-                  className="px-6 py-2 rounded-full bg-white text-black font-bold text-sm hover:bg-zinc-200 transition shadow-[0_0_15px_rgba(255,255,255,0.2)]"
+                  className="px-6 py-2 rounded-full bg-white text-black font-bold text-sm hover:opacity-90 transition shadow-[0_0_15px_rgba(255,255,255,0.2)]"
                 >
                   Editar Perfil
                 </button>
-                <button className="px-4 py-2 rounded-full border border-zinc-700 hover:border-pink-500 hover:text-pink-500 transition text-zinc-300">
+                <button
+                  onClick={() => navigate("/settings")}
+                  className="px-4 py-2 rounded-full border border-zinc-700 hover:text-white transition text-zinc-300"
+                  style={{ borderColor: "transparent" }}
+                  onMouseEnter={(e) => {
+                    e.target.style.borderColor = themeColor;
+                    e.target.style.color = themeColor;
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.borderColor = "rgba(63, 63, 70, 1)";
+                    e.target.style.color = "#d4d4d8";
+                  }}
+                  title="Configurações"
+                >
                   ⚙️
                 </button>
               </div>
             </div>
 
+            {/* Stats */}
             <div className="flex gap-8 mt-6">
               <div className="text-center md:text-left">
                 <span className="block font-bold text-white text-lg">1.2k</span>
@@ -194,7 +239,6 @@ function Profile() {
         </div>
       </div>
 
-      {/* --- CONTEÚDO PRINCIPAL --- */}
       <div className="max-w-6xl mx-auto px-6 md:px-10 py-8 grid grid-cols-1 lg:grid-cols-4 gap-10">
         {/* COLUNA ESQUERDA */}
         <div className="lg:col-span-1 space-y-8">
@@ -231,18 +275,21 @@ function Profile() {
             <TabButton
               active={activeTab === "publicacoes"}
               onClick={() => setActiveTab("publicacoes")}
+              color={themeColor}
             >
               Publicações
             </TabButton>
             <TabButton
               active={activeTab === "agenda"}
               onClick={() => setActiveTab("agenda")}
+              color={themeColor}
             >
               Agenda
             </TabButton>
             <TabButton
               active={activeTab === "avaliacoes"}
               onClick={() => setActiveTab("avaliacoes")}
+              color={themeColor}
             >
               Avaliações
             </TabButton>
@@ -284,9 +331,8 @@ function Profile() {
 
       {isEditing && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
-          <div className="bg-zinc-900 border border-zinc-800 w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden animate-slide-up">
-            {/* Cabeçalho do Modal */}
-            <div className="flex justify-between items-center p-6 border-b border-zinc-800">
+          <div className="bg-zinc-900 border border-zinc-800 w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden animate-slide-up max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center p-6 border-b border-zinc-800 sticky top-0 bg-zinc-900 z-10">
               <h2 className="text-xl font-bold text-white">Editar Perfil</h2>
               <button
                 onClick={() => setIsEditing(false)}
@@ -297,12 +343,72 @@ function Profile() {
             </div>
 
             <form onSubmit={handleSave} className="p-6 space-y-4">
+              {/* SEÇÃO DE APARÊNCIA */}
+              <div className="bg-black/20 p-4 rounded-xl border border-zinc-800 mb-4">
+                <div className="flex justify-between items-center mb-3">
+                  <h3 className="text-xs font-bold text-zinc-500 uppercase">
+                    Aparência
+                  </h3>
+                  {/* BOTÃO RESTAURAR PADRÃO */}
+                  <button
+                    type="button"
+                    onClick={handleRestoreColors}
+                    className="text-xs text-zinc-400 hover:text-white underline transition"
+                  >
+                    Restaurar Padrão
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-xs text-zinc-400 mb-2 block">
+                      Cor do Tema
+                    </label>
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="color"
+                        className="w-10 h-10 rounded cursor-pointer bg-transparent border-none p-0"
+                        value={editForm.cor_tema}
+                        onChange={(e) =>
+                          setEditForm({ ...editForm, cor_tema: e.target.value })
+                        }
+                      />
+                      <span className="text-xs text-zinc-400 font-mono">
+                        {editForm.cor_tema}
+                      </span>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-xs text-zinc-400 mb-2 block">
+                      Cor do Banner
+                    </label>
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="color"
+                        className="w-10 h-10 rounded cursor-pointer bg-transparent border-none p-0"
+                        value={editForm.cor_banner}
+                        onChange={(e) =>
+                          setEditForm({
+                            ...editForm,
+                            cor_banner: e.target.value,
+                          })
+                        }
+                      />
+                      <span className="text-xs text-zinc-400 font-mono">
+                        {editForm.cor_banner}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* DADOS PESSOAIS */}
               <div>
                 <label className="text-xs font-bold text-zinc-500 uppercase mb-1 block">
                   Nome de Usuário
                 </label>
                 <input
-                  className="w-full bg-black border border-zinc-700 rounded-xl px-4 py-3 text-white focus:border-pink-500 outline-none transition"
+                  className="w-full bg-black border border-zinc-700 rounded-xl px-4 py-3 text-white focus:border-white outline-none transition"
                   value={editForm.usuario}
                   onChange={(e) =>
                     setEditForm({ ...editForm, usuario: e.target.value })
@@ -316,7 +422,7 @@ function Profile() {
                     Telefone
                   </label>
                   <input
-                    className="w-full bg-black border border-zinc-700 rounded-xl px-4 py-3 text-white focus:border-pink-500 outline-none transition"
+                    className="w-full bg-black border border-zinc-700 rounded-xl px-4 py-3 text-white focus:border-white outline-none transition"
                     value={editForm.telefone}
                     onChange={(e) =>
                       setEditForm({ ...editForm, telefone: e.target.value })
@@ -328,7 +434,7 @@ function Profile() {
                     Localização
                   </label>
                   <input
-                    className="w-full bg-black border border-zinc-700 rounded-xl px-4 py-3 text-white focus:border-pink-500 outline-none transition"
+                    className="w-full bg-black border border-zinc-700 rounded-xl px-4 py-3 text-white focus:border-white outline-none transition"
                     value={editForm.local_atuacao}
                     onChange={(e) =>
                       setEditForm({
@@ -346,7 +452,7 @@ function Profile() {
                     Organização
                   </label>
                   <input
-                    className="w-full bg-black border border-zinc-700 rounded-xl px-4 py-3 text-white focus:border-pink-500 outline-none transition"
+                    className="w-full bg-black border border-zinc-700 rounded-xl px-4 py-3 text-white focus:border-white outline-none transition"
                     value={editForm.organizacao}
                     onChange={(e) =>
                       setEditForm({ ...editForm, organizacao: e.target.value })
@@ -361,7 +467,7 @@ function Profile() {
                 </label>
                 <textarea
                   rows="4"
-                  className="w-full bg-black border border-zinc-700 rounded-xl px-4 py-3 text-white focus:border-pink-500 outline-none transition resize-none"
+                  className="w-full bg-black border border-zinc-700 rounded-xl px-4 py-3 text-white focus:border-white outline-none transition resize-none"
                   value={editForm.descricao}
                   onChange={(e) =>
                     setEditForm({ ...editForm, descricao: e.target.value })
@@ -380,7 +486,8 @@ function Profile() {
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 py-3 rounded-xl bg-linear-to-r from-yellow-300 to-pink-500 text-black font-bold hover:opacity-90 transition shadow-lg"
+                  className="flex-1 py-3 rounded-xl text-black font-bold hover:opacity-90 transition shadow-lg"
+                  style={{ backgroundColor: editForm.cor_tema }}
                 >
                   Salvar Alterações
                 </button>
@@ -393,6 +500,7 @@ function Profile() {
   );
 }
 
+// ... (Componentes Auxiliares) ...
 function InfoItem({ icon, label, value, isLink }) {
   return (
     <div className="flex items-start gap-3 p-2 hover:bg-zinc-800/50 rounded-lg transition overflow-hidden">
@@ -418,23 +526,16 @@ function InfoItem({ icon, label, value, isLink }) {
   );
 }
 
-function Tag({ children }) {
-  return (
-    <span className="px-3 py-1 rounded-full bg-zinc-900 border border-zinc-700 text-xs text-zinc-400 hover:text-white hover:border-pink-500 transition cursor-default">
-      {children}
-    </span>
-  );
-}
-
-function TabButton({ children, active, onClick }) {
+function TabButton({ children, active, onClick, color }) {
   return (
     <button
       onClick={onClick}
       className={`pb-4 text-sm font-bold border-b-2 transition-all ${
         active
-          ? "border-pink-500 text-white"
+          ? "text-white"
           : "border-transparent text-zinc-500 hover:text-zinc-300"
       }`}
+      style={{ borderColor: active ? color : "transparent" }}
     >
       {children}
     </button>

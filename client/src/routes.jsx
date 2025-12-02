@@ -10,6 +10,7 @@ import Profile from "./pages/profile";
 import Dashboard from "./pages/dashboard";
 import Explore from "./pages/explore";
 import Settings from "./pages/settings";
+import PublicProfile from "./pages/publicProfile";
 
 function AppRouter() {
   return (
@@ -24,6 +25,7 @@ function AppRouter() {
       <Route path="/profile" element={<Profile />} />
       <Route path="/explore" element={<Explore />} />
       <Route path="/settings" element={<Settings />} />
+      <Route path="/u/:id" element={<PublicProfile />} />
     </Routes>
   );
 }
