@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import axios from "axios";
 
-// --- DADOS MOCKADOS ---
 const mockPosts = [
   {
     id: 1,
@@ -57,7 +56,7 @@ const mockPosts = [
 function Profile() {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
-  const [isEditing, setIsEditing] = useState(false); // Estado para controlar o Pop-up
+  const [isEditing, setIsEditing] = useState(false);
   const [activeTab, setActiveTab] = useState("publicacoes");
 
   const [editForm, setEditForm] = useState({
@@ -93,17 +92,15 @@ function Profile() {
   const handleSave = async (e) => {
     e.preventDefault();
     try {
-      // Atualiza no Backend
       const response = await axios.put(
         `http://localhost:3000/auth/users/${user.id_usuario}`,
         editForm
       );
 
-      // Atualiza no LocalStorage e na Tela
       const updatedUser = { ...user, ...editForm };
       localStorage.setItem("user", JSON.stringify(updatedUser));
       setUser(updatedUser);
-      setIsEditing(false); // Fecha o Pop-up
+      setIsEditing(false);
 
       alert("Sucesso: " + response.data.message);
     } catch (error) {
@@ -116,7 +113,7 @@ function Profile() {
 
   return (
     <div className="min-h-screen bg-black text-white font-sans overflow-x-hidden relative">
-      {/* --- BOTÃO VOLTAR --- */}
+      {/*  BOTÃO VOLTAR  */}
       <button
         onClick={() => navigate("/dashboard")}
         className="fixed top-6 left-6 z-40 bg-black/50 backdrop-blur-md border border-white/10 w-10 h-10 rounded-full flex items-center justify-center hover:bg-white hover:text-black transition-all"
@@ -285,7 +282,6 @@ function Profile() {
         </div>
       </div>
 
-      {/* --- POP-UP (MODAL) DE EDIÇÃO --- */}
       {isEditing && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
           <div className="bg-zinc-900 border border-zinc-800 w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden animate-slide-up">
@@ -300,7 +296,6 @@ function Profile() {
               </button>
             </div>
 
-            {/* Formulário */}
             <form onSubmit={handleSave} className="p-6 space-y-4">
               <div>
                 <label className="text-xs font-bold text-zinc-500 uppercase mb-1 block">
@@ -398,7 +393,6 @@ function Profile() {
   );
 }
 
-// --- Componentes Auxiliares ---
 function InfoItem({ icon, label, value, isLink }) {
   return (
     <div className="flex items-start gap-3 p-2 hover:bg-zinc-800/50 rounded-lg transition overflow-hidden">

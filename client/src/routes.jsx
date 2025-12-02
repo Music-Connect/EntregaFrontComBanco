@@ -9,6 +9,7 @@ import ForgotPassword from "./pages/forgot-password";
 import Profile from "./pages/profile";
 import Dashboard from "./pages/dashboard";
 import Explore from "./pages/explore";
+import Settings from "./pages/settings";
 
 function AppRouter() {
   return (
@@ -22,6 +23,7 @@ function AppRouter() {
       <Route path="/dashboard" element={<Dashboard />} />
       <Route path="/profile" element={<Profile />} />
       <Route path="/explore" element={<Explore />} />
+      <Route path="/settings" element={<Settings />} />
     </Routes>
   );
 }

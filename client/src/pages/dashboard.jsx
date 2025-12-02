@@ -173,7 +173,9 @@ function Dashboard() {
                 {isArtist ? "Meu Perfil" : "Minha Empresa"}
               </NavItem>
             </div>
-            <NavItem icon="">Configurações</NavItem>
+            <div onClick={() => navigate("/settings")}>
+              <NavItem icon="">Configurações</NavItem>
+            </div>
           </div>
         </nav>
 
