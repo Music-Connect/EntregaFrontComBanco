@@ -6,8 +6,9 @@ import ProfileSelector from "./pages/profileSelector";
 import ResgisterArt from "./pages/registerArt";
 import ResgisterCon from "./pages/registerCon";
 import ForgotPassword from "./pages/forgot-password";
-
+import Profile from "./pages/profile";
 import Dashboard from "./pages/dashboard";
+import Explore from "./pages/explore";
 
 function AppRouter() {
   return (
@@ -19,6 +20,8 @@ function AppRouter() {
       <Route path="/registerCon" element={<ResgisterCon />}></Route>
       <Route path="forgot-password" element={<ForgotPassword />}></Route>
       <Route path="/dashboard" element={<Dashboard />} />
+      <Route path="/profile" element={<Profile />} />
+      <Route path="/explore" element={<Explore />} />
     </Routes>
   );
 }

@@ -15,14 +15,12 @@ function ResgisterCon() {
     organizacao: "",
   });
 
-  // 1. Função para atualizar o estado quando você digita
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // 2. Função para enviar os dados quando clica no botão
   const handleSubmit = async (e) => {
-    e.preventDefault(); // Impede a página de recarregar
+    e.preventDefault();
 
     if (formData.password !== formData.confirmarSenha) {
       return alert("As senhas não conferem!");
@@ -43,7 +41,7 @@ function ResgisterCon() {
   return (
     <Center>
       <Title title={"Cadastrar Contratante"} />
-      {/* O onSubmit precisa estar aqui na tag form */}
+
       <form
         onSubmit={handleSubmit}
         className="w-full max-w-xl flex flex-col gap-5"

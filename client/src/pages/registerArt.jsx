@@ -1,4 +1,5 @@
 import { useState } from "react";
+import axios from "axios";
 import Center from "../components/layout/Center";
 import Input from "../components/layout/Input";
 import Title from "../components/layout/Title";
@@ -14,25 +15,39 @@ function ResgisterArt() {
   });
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prevState) => ({
-      ...prevState,
-      [name]: value,
-    }));
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
-  const handleSubmit = (e) => {
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (formData.senha !== formData.confirmarSenha) {
+
+    if (formData.password !== formData.confirmarSenha) {
       alert("As senhas não coincidem!");
       return;
     }
-    console.log("Dados do formulário para enviar:", formData);
-    alert("Cadastro enviado com sucesso!");
+
+    try {
+      const response = await axios.post(
+        "http://localhost:3000/auth/registerArt",
+        formData
+      );
+      alert("Sucesso: " + response.data.message);
+
+      /* setFormData({
+        email: "", password: "", confirmarSenha: "", usuario: "", telefone: "", local: ""
+      }); */
+    } catch (error) {
+      console.error(error);
+      alert(
+        "Erro: " +
+          (error.response?.data?.error || "Erro ao conectar com o servidor")
+      );
+    }
   };
 
   return (
     <Center>
-      <Title title={"Cadastrar Artista"}></Title>
+      <Title title={"Cadastrar Artista"} />
       <form
         onSubmit={handleSubmit}
         className="w-full max-w-xl flex flex-col gap-5"
@@ -49,8 +64,8 @@ function ResgisterArt() {
 
         <Input
           label="Coloque sua senha:"
-          id="senha"
-          name="senha"
+          id="password"
+          name="password"
           type="password"
           description="********"
           value={formData.password}
@@ -58,7 +73,7 @@ function ResgisterArt() {
         />
 
         <Input
-          label="Coloque sua senha novamente:"
+          label="Confirme a senha:"
           id="confirmarSenha"
           name="confirmarSenha"
           type="password"
@@ -72,10 +87,11 @@ function ResgisterArt() {
           id="usuario"
           name="usuario"
           type="text"
-          description="Seu nome de usuário"
+          description="Seu nome artístico"
           value={formData.usuario}
           onChange={handleChange}
         />
+
         <Input
           label="Telefone de contato:"
           id="telefone"
@@ -85,6 +101,17 @@ function ResgisterArt() {
           value={formData.telefone}
           onChange={handleChange}
         />
+
+        <Input
+          label="Localização:"
+          id="local"
+          name="local"
+          type="text"
+          description="Cidade - UF"
+          value={formData.local}
+          onChange={handleChange}
+        />
+
         <button
           type="submit"
           className="w-full mt-6 bg-linear-to-r from-yellow-300 to-pink-400 text-black font-bold py-3 

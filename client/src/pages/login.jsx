@@ -27,7 +27,6 @@ function Login() {
       localStorage.setItem("user", JSON.stringify(response.data.user));
       localStorage.setItem("type", response.data.type);
 
-      alert("Bem-vindo(a)! " + response.data.message);
       console.log("Dados do usuário:", response.data.user);
       console.log("Tipo de perfil:", response.data.type);
 
