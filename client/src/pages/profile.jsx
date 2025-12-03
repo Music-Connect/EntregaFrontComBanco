@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import axios from "axios";
+import ProfileAgenda from "../components/publicProfile/ProfileAgenda";
 
-// --- DADOS MOCKADOS (Simulação de Publicações) ---
 const mockPosts = [
   {
     id: 1,
@@ -326,6 +326,7 @@ function Profile() {
               </div>
             </div>
           )}
+          {activeTab === "agenda" && <ProfileAgenda userId={user.id_usuario} />}
         </div>
       </div>
 

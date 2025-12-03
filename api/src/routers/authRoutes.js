@@ -17,6 +17,7 @@ import { getUserById } from "../handlers/userHandler.js";
 import { createContract } from "../handlers/userHandler.js";
 import { getContracts } from "../handlers/userHandler.js";
 import { updateContractStatus } from "../handlers/userHandler.js";
+import { getUserAgenda } from "../handlers/userHandler.js";
 
 const router = Router();
 
@@ -33,4 +34,5 @@ router.get("/users/:id", getUserById);
 router.post("/contracts", createContract);
 router.get("/contracts", getContracts);
 router.put("/contracts/:id", updateContractStatus);
+router.get("/users/:id/agenda", getUserAgenda);
 export default router;

@@ -11,6 +11,7 @@ import Dashboard from "./pages/dashboard";
 import Explore from "./pages/explore";
 import Settings from "./pages/settings";
 import PublicProfile from "./pages/publicProfile";
+import Proposals from "./pages/proposals";
 
 function AppRouter() {
   return (
@@ -26,6 +27,7 @@ function AppRouter() {
       <Route path="/explore" element={<Explore />} />
       <Route path="/settings" element={<Settings />} />
       <Route path="/u/:id" element={<PublicProfile />} />
+      <Route path="/proposals" element={<Proposals />} />
     </Routes>
   );
 }

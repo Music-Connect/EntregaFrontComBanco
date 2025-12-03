@@ -1,4 +1,9 @@
-export default function Sidebar({ isArtist, navigate, handleLogout }) {
+export default function Sidebar({
+  isArtist,
+  navigate,
+  handleLogout,
+  activePage,
+}) {
   return (
     <aside className="w-64 hidden md:flex flex-col p-8 border-r border-zinc-900 bg-black">
       <div className="text-2xl font-black mb-10">
@@ -12,14 +17,26 @@ export default function Sidebar({ isArtist, navigate, handleLogout }) {
           <p className="text-xs font-bold text-zinc-600 uppercase tracking-wider">
             Painel
           </p>
-          <NavItem icon="" active>
-            Visão Geral
-          </NavItem>
-          <NavItem icon="">
-            {isArtist ? "Propostas" : "Minhas Contratações"}
-          </NavItem>
+
+          <div onClick={() => navigate("/dashboard")}>
+            <NavItem
+              icon="kb"
+              active={activePage === "dashboard" || !activePage}
+            >
+              Visão Geral
+            </NavItem>
+          </div>
+
+          <div onClick={() => navigate("/proposals")}>
+            <NavItem icon="doc" active={activePage === "proposals"}>
+              {isArtist ? "Propostas" : "Minhas Contratações"}
+            </NavItem>
+          </div>
+
           <div onClick={() => navigate("/explore")}>
-            <NavItem icon="">Explorar</NavItem>
+            <NavItem icon="search" active={activePage === "explore"}>
+              Explorar
+            </NavItem>
           </div>
         </div>
 
@@ -28,12 +45,14 @@ export default function Sidebar({ isArtist, navigate, handleLogout }) {
             {isArtist ? "Perfil" : "Organização"}
           </p>
           <div onClick={() => navigate("/profile")}>
-            <NavItem icon="">
+            <NavItem icon="user" active={activePage === "profile"}>
               {isArtist ? "Meu Perfil" : "Minha Empresa"}
             </NavItem>
           </div>
           <div onClick={() => navigate("/settings")}>
-            <NavItem icon="">Configurações</NavItem>
+            <NavItem icon="cog" active={activePage === "settings"}>
+              Configurações
+            </NavItem>
           </div>
         </div>
       </nav>
@@ -49,6 +68,14 @@ export default function Sidebar({ isArtist, navigate, handleLogout }) {
 }
 
 function NavItem({ children, icon, active }) {
+  const icons = {
+    kb: "📊",
+    doc: "Tb",
+    search: "Mw",
+    user: "👤",
+    cog: "⚙️",
+  };
+
   return (
     <div
       className={`flex items-center gap-3 cursor-pointer py-2 px-3 rounded-lg transition-all duration-200 ${
@@ -57,9 +84,6 @@ function NavItem({ children, icon, active }) {
           : "hover:text-white hover:bg-zinc-900/50"
       }`}
     >
-      <span className={`text-lg ${active ? "text-pink-500" : "opacity-70"}`}>
-        {icon}
-      </span>
       <span>{children}</span>
     </div>
   );

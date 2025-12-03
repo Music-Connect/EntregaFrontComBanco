@@ -315,3 +315,20 @@ export function updateContractStatus(req, res) {
     return res.status(200).json({ message: `Contrato ${status}!` });
   });
 }
+
+export function getUserAgenda(req, res) {
+  const { id } = req.params;
+
+  const query = `
+    SELECT id_contrato, local_evento, data_evento, valor_servico 
+    FROM contrato 
+    WHERE id_usuario = ? 
+    AND status = 'Aceito' 
+    ORDER BY data_evento ASC
+  `;
+
+  pool.query(query, [id], (err, results) => {
+    if (err) return res.status(500).json({ error: err.message });
+    return res.status(200).json(results);
+  });
+}

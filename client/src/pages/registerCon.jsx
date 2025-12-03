@@ -3,8 +3,10 @@ import axios from "axios";
 import Center from "../components/layout/Center";
 import Input from "../components/layout/Input";
 import Title from "../components/layout/Title";
+import { useNavigate } from "react-router";
 
 function ResgisterCon() {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -31,7 +33,12 @@ function ResgisterCon() {
         "http://localhost:3000/auth/registerCon",
         formData
       );
+
       alert("Sucesso: " + response.data.message);
+
+      setTimeout(() => {
+        navigate("/login");
+      }, 2000);
     } catch (error) {
       console.error(error);
       alert("Erro: " + (error.response?.data?.error || "Erro de conexão"));
