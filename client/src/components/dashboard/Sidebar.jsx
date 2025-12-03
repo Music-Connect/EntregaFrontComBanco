@@ -2,9 +2,8 @@ export default function Sidebar({ isArtist, navigate, handleLogout }) {
   return (
     <aside className="w-64 hidden md:flex flex-col p-8 border-r border-zinc-900 bg-black">
       <div className="text-2xl font-black mb-10">
-        Music
         <span className="text-transparent bg-clip-text bg-linear-to-r from-yellow-300 to-pink-500">
-          Connect
+          Music Connect
         </span>
       </div>
 

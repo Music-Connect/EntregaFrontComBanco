@@ -20,7 +20,6 @@ export default function dataReturnCon(request, response) {
 
     RegisterDataValidator({ email, password, confirmarSenha, usuario });
 
-    // 1. Inserir na tabela USUARIO
     const queryUser = `
             INSERT INTO usuario (email, senha, usuario, telefone, local_atuacao, tipo_usuario) 
             VALUES (?, ?, ?, ?, ?, 'contratante')
@@ -37,7 +36,6 @@ export default function dataReturnCon(request, response) {
 
         const newUserId = resultUser.insertId;
 
-        // 2. Inserir na tabela CONTRATANTE
         const queryCon = `INSERT INTO contratante (id_usuario, organizacao) VALUES (?, ?)`;
 
         pool.query(queryCon, [newUserId, organizacao], (errCon, resultCon) => {
@@ -47,8 +45,6 @@ export default function dataReturnCon(request, response) {
               .json({ error: "Erro ao criar dados de contratante." });
           }
 
-          // 3. RETORNO COMPLETO (A Correção é Aqui)
-          // Montamos o objeto usuário manualmente para devolver ao Front
           const newUser = {
             id_usuario: newUserId,
             email,
@@ -56,12 +52,12 @@ export default function dataReturnCon(request, response) {
             telefone,
             local_atuacao: local,
             tipo_usuario: "contratante",
-            organizacao: organizacao, // <--- Agora enviamos a organização!
+            organizacao: organizacao,
           };
 
           return response.status(201).json({
             message: "Contratante cadastrado com sucesso!",
-            user: newUser, // Enviamos o user para o front já logar se quiser
+            user: newUser,
           });
         });
       }
@@ -198,7 +194,7 @@ export function getUsers(req, res) {
 
   pool.query(query, params, (err, results) => {
     if (err) {
-      console.error("Erro na busca:", err); // Agora você verá o erro no terminal se acontecer de novo
+      console.error("Erro na busca:", err);
       return res.status(500).json({ error: "Erro ao buscar usuários." });
     }
     return res.status(200).json(results);

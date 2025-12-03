@@ -1,7 +1,4 @@
-import React from "react";
-
 export default function ProposalCard({ item, isArtist, onAcceptDecline }) {
-  // Função auxiliar para formatar moeda
   const formatCurrency = (value) => {
     return Number(value).toLocaleString("pt-BR", {
       style: "currency",
@@ -9,7 +6,6 @@ export default function ProposalCard({ item, isArtist, onAcceptDecline }) {
     });
   };
 
-  // Função auxiliar para formatar data
   const formatDate = (dateString) => {
     return dateString ? new Date(dateString).toLocaleDateString() : "-";
   };

@@ -99,7 +99,6 @@ function Dashboard() {
         <div className="p-8">
           <DashboardBanner isArtist={isArtist} navigate={navigate} />
 
-          {/* LISTA DE PROPOSTAS */}
           <div>
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-2xl font-bold flex items-center gap-3">
